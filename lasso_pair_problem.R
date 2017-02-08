@@ -10,8 +10,6 @@ if (length(args)==3){seed = as.numeric(args[3])}else{seed=2}
 
 cl <- setup('parallel',3)
 title <- paste('LASSO Pair Selectivity',as.character(args[1]),sep=' ')
-path = paste('~/Output/',as.character(args[1]),sep='')
-dir.create(path =path,showWarnings = FALSE)
 
 ## Functions ##
 make_age <- function(type,beta_preset){
@@ -109,8 +107,3 @@ plot(rep(n_start:n_end,each=10),unlist(L),col=colors,xaxt = "n",xlab='n/o random
 plot(rep(n_start:n_end,each=10),featlength,ylab='n/o features per fold',col=colors,xaxt = "n",xlab='n/o randomly generated features (log2)',main=title);axis(1, at=n_start:n_end, labels=(n_start:n_end));legend('topleft',fill=c('green','red'),legend = c('Pair Selected','Pair not Selected'),inset=.02)
 plot(penalty,RSS,col=colors,main=title);dev.off()
 plot(penalty,RSS,col=colors,main=title,xlim=c(0,50),ylim=c(0,200))
-
-#reconstruct
-coefs <- C[[6]][[10]]
-prediction <- rowSums(coefs[-1] * beta2[,names(coefs[-1])]) + coefs[1]
-mae(prediction - beta2$age)
