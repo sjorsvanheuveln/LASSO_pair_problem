@@ -11,19 +11,6 @@ if (length(args)==3){seed = as.numeric(args[3])}else{seed=2}
 cl <- setup('parallel',3)
 title <- paste('LASSO Pair Selectivity',as.character(args[1]),sep=' ')
 
-## Functions ##
-make_age <- function(type,beta_preset){
-  n = nrow(beta_preset)
-  if(type=='linear'){return(1:n)}
-  else if(type=='random_linear'){return(sample(1:n,replace = F))}
-  else if(type=='age'){return(beta_preset$age)}
-  else if(type=='sorted_age'){return(sort(beta_preset$age))}
-  else if(type=='double'){return(rep(1:nrow(beta_preset),each=2)[1:nrow(beta_preset)])}
-  else if(type=='scaled'){return(1:n/n)}
-  else if(type=='agescaled'){return(beta_preset$age/max(beta_preset$age))}
-  else{stop('this response variable is not defined!')}
-}
-
 ## Setup ##
 features <- list()
 coefs <- list()
@@ -35,7 +22,6 @@ type=as.character(args[2])  #type of response variable
 
 ## MAIN ##
 age <-  as.data.frame(1:20); colnames(age) <- 'age'
-age <- make_age(type,age)
 set.seed(seed)
 n_start <- 1 #start at 2^n features
 n_end <- 6 #finish with 2^n features
@@ -50,7 +36,7 @@ for (j in n_start:n_end){
   set.seed(seed)
   #create fake data frame
   
-  beta2 <- as.data.frame(cbind(age,replicate(2^(j),rnorm(length(age),1,1))));colnames(beta2)[1] <-'age'
+  beta2 <- as.data.frame(cbind(age,replicate(2^(j),rnorm(nrow(age),1,1))));colnames(beta2)[1] <-'age'
   q = length(beta2$age)%/%2
   f1 <- c(beta2$age[1:q],rep(0,length(beta2$age)-q)) 
   f2 <- c(rep(0,q),beta2$age[(q+1):length(beta2$age)])
@@ -97,12 +83,11 @@ inout <- lapply(unlist(C,recursive = F),function(x){c('f1','f2') %in% names(x)})
 colors <- unlist(lapply(inout,function(x){if (x[1]*x[2]){'green'}else{'red'}}))
 featlength <- unlist(lapply(unlist(C,recursive = F),function(x){length(x)-1}))
 
-#checken of paths gaan kloppen
 plot(rep(n_start:n_end,each=10),pair_coefs$f1,col='red',xaxt = "n",xlab='n/o randomly generated features (log2)',main=title,ylim=c(0,1),ylab='pair coefficients');axis(1, at=n_start:n_end);points(rep(n_start:n_end,each=10),pair_coefs$f2,col='blue');axis(1, at=n_start:n_end, labels=(n_start:n_end));legend('bottomleft',fill=c('red','blue'),legend = c('f1','f2'),inset=.02)
 plot(rep(n_start:n_end,each=10),RSS+penalty,col=colors,xaxt = "n",xlab='n/o randomly generated features (log2)',main=title);axis(1, at=n_start:n_end, labels=(n_start:n_end));legend('topleft',fill=c('green','red'),legend = c('Pair Selected','Pair not Selected'),inset=.02)
 plot(rep(n_start:n_end,each=10),penalty,col=colors,xaxt = "n",xlab='n/o randomly generated features (log2)',main=title);axis(1, at=n_start:n_end, labels=(n_start:n_end));legend('topleft',fill=c('green','red'),legend = c('Pair Selected','Pair not Selected'),inset=.02)
 plot(rep(n_start:n_end,each=10),RSS,col=colors,xaxt = "n",xlab='n/o randomly generated features (log2)',main=title);axis(1, at=n_start:n_end, labels=(n_start:n_end));legend('topleft',fill=c('green','red'),legend = c('Pair Selected','Pair not Selected'),inset=.02)
 plot(rep(n_start:n_end,each=10),unlist(L),col=colors,xaxt = "n",xlab='n/o randomly generated features (log2)',main=title,ylab=expression(paste(lambda)));axis(1, at=n_start:n_end, labels=(n_start:n_end));legend('topleft',fill=c('green','red'),legend = c('Pair Selected','Pair not Selected'),inset=.02)
 plot(rep(n_start:n_end,each=10),featlength,ylab='n/o features per fold',col=colors,xaxt = "n",xlab='n/o randomly generated features (log2)',main=title);axis(1, at=n_start:n_end, labels=(n_start:n_end));legend('topleft',fill=c('green','red'),legend = c('Pair Selected','Pair not Selected'),inset=.02)
-plot(penalty,RSS,col=colors,main=title);dev.off()
-plot(penalty,RSS,col=colors,main=title,xlim=c(0,50),ylim=c(0,200))
+plot(penalty,RSS,col=colors,main=title)
+plot(penalty,RSS,col=colors,main=title,xlim=c(0,2),ylim=c(0,50))
