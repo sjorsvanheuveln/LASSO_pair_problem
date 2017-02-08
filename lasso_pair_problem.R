@@ -35,7 +35,6 @@ type=as.character(args[2])  #type of response variable
 
 ## MAIN ##
 age <-  as.data.frame(1:20); colnames(age) <- 'age'
-age$age <- age$age/max(age)
 age <- make_age(type,age)
 set.seed(seed)
 n_start <- 1 #start at 2^n features
