@@ -1,22 +1,13 @@
-#library(MASS)
-#load(iris)
-#iris$Species <- NULL
-#x <- as.matrix(iris[,1:3])
-#x <- cbind(rep(1,150),x)
-#y <- as.matrix(iris[,4])
+library(glmnet)
+library(doParallel)
+library(caret)
 
-#solve(t(x) %*% x) %*% t(x) %*% y
+mae <- function(errors){MAE <- mean(abs(errors));return(MAE)}
 
-####
-# Feature Selection 3
-# Update with a removed iteration
-# SvH 26-01-2017
 args = c('Age_Response age','sorted_age') #for running in Rstudio
 if (length(args)< 2){stop('please supply 2 arguments: exp.name and response var')}
 if (length(args)==3){seed = as.numeric(args[3])}else{seed=2}
 
-setwd('~/Desktop/mBioinformatics/2.2 Forensic Epigenetics/Stage/')
-source('Scripts/MFM_functions.R')
 cl <- setup('parallel',3)
 title <- paste('LASSO Pair Selectivity',as.character(args[1]),sep=' ')
 path = paste('~/Output/',as.character(args[1]),sep='')
